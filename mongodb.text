@@ -1,0 +1,38 @@
+Mongodb
+db.tranfer_seller.aggregate([
+  {
+    $lookup: {
+      from: "sellers",
+      localField: "sellerId",
+      foreignField: "_id",
+      as: "seller_info"
+    }
+  },/// ໃຊ້ລວມງານກັບ Collection ອື່ນ  
+  { $unwind: "$seller_info" },  ///array to Object
+  {
+    $group: {
+      _id: "$sellerId",     ໄອດີ ຂອງນີ້
+      seller_details: { $first: "$seller_info" },
+      transactions: {
+        $push: {
+          id: "$_id",
+          amount: "$amount",
+          status: "$status",
+          date: "$date",
+          totalPending: {
+            $sum: { $cond: [{ $eq: ["$status", "Pending"] }, "$amount", 0] } // ✅ ถ้าเป็น Pending ให้รวมยอดเงิน
+          } $cond          $eq ເລືອກສະເພາະ ນີ້    ຂອງ amount
+          totalAmount: { $sum: { $ifNull: ["$amount", 0] } } // ✅ ถ้า `amount` เป็น `null` ให้แทนด้วย 0
+        }
+      }
+    }
+  }
+  {
+    $match: { status: "Approved" } // ✅ เลือกเฉพาะรายการที่ได้รับอนุมัติ
+  },
+]);
+
+      ✅ $group ใช้ จัดกลุ่ม เอกสารใน MongoDB
+      ✅ สามารถใช้กับ Aggregation Operators เช่น $sum, $avg, $first, $push
+      ✅ ใช้ร่วมกับ $lookup เพื่อรวมข้อมูลจากหลาย Collection ได้
+      ✅ ใช้ $unwind ถ้าต้องการให้ Array กลายเป็น Object
