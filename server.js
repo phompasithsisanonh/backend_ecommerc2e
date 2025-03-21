@@ -11,7 +11,7 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 const redis = require("redis");
 const methodOverride = require('method-override')
-const session = require("express-session");
+// const session = require("express-session");
 // Middleware
 app.use(
   cors({
@@ -21,14 +21,14 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
-app.use(
-  session({
-    secret: "ecommerce-secret", // ใช้สำหรับเข้ารหัส session
-    resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 60000 * 10 }, // อายุ session 10 นาที
-  })
-);
+// app.use(
+//   session({
+//     secret: "ecommerce-secret", // ใช้สำหรับเข้ารหัส session
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: { maxAge: 60000 * 10 }, // อายุ session 10 นาที
+//   })
+// );
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }))
