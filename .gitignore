@@ -10,7 +10,7 @@ yarn-error.log*
 .env.development
 .env.production
 .env.test
-
+/.vercel
 # Logs
 logs
 *.log
