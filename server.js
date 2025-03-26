@@ -29,7 +29,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride("_method"));
 
 app.use("/api", routers);
-
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK", message: "Server is running" });
+});
 const startServer = async () => {
   try {
     // เชื่อมต่อ MongoDB

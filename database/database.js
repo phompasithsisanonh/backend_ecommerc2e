@@ -7,6 +7,7 @@ const options = {
   maxPoolSize: 10,
   socketTimeoutMS: 45000,
   family: 4,
+  
 };
 
 // Function to connect to MongoDB
