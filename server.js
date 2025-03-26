@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 8080;
 
 app.use(
   cors({
-    origin:["https://easyshoplaos.netlify.app","http://localhost:3000"],
+    origin:["https://easyshoplaos.netlify.app","http://localhost:3000","https://easyshoplaosland.netlify.app/"],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed HTTP methods
   allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
