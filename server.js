@@ -17,8 +17,6 @@ app.use(
   cors({
     origin:"https://easyshoplaos.netlify.app",
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
 
