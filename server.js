@@ -8,13 +8,13 @@ const connectDB = require("./database/database.js");
 const routers = require("./routers/routers");
 const http = require("http");
 const server = http.createServer(app);
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 // const redis = require("redis");
 const methodOverride = require('method-override')
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://easyshoplaos.netlify.app"],
+    origin: "*", // ใช้ * สำหรับทุกๆ Origin หรือเปลี่ยนเป็น URL ที่ต้องการอนุญาต
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE"],
