@@ -2,11 +2,11 @@ const categoryModel = require("../../models/categoryModel");
 const productModel = require("../../models/productModel");
 const reviewModel = require("../../models/reviewModel");
 const moment = require("moment");
-const redis = require("ioredis");
-const client = redis.createClient();
+// const redis = require("ioredis");
+// const client = redis.createClient();
 const { promisify } = require("util");
-const getAsync = promisify(client.get).bind(client);
-const setAsync = promisify(client.setex).bind(client);
+// const getAsync = promisify(client.get).bind(client);
+// const setAsync = promisify(client.setex).bind(client);
 const get_categorys = async (req, res) => {
   try {
     const categorys = await categoryModel.find({});
@@ -38,10 +38,10 @@ const formateProduct = (products) => {
 const get_products = async (req, res) => {
   try {
     // Check if products are cached
-    const cachedProducts = await getAsync("products");
-    if (cachedProducts) {
-      return res.status(200).json(JSON.parse(cachedProducts));
-    }
+    // const cachedProducts = await getAsync("products");
+    // if (cachedProducts) {
+    //   return res.status(200).json(JSON.parse(cachedProducts));
+    // }
 
     // Fetch data from MongoDB
     const products = await productModel.find({}).limit(12).sort({ createdAt: -1 });
@@ -57,7 +57,7 @@ const get_products = async (req, res) => {
     const responseData = { products, latest_product, topRated_product, discount_product };
 
     // Cache the result in Redis for 10 minutes (600 seconds)
-    await setAsync("products", 600, JSON.stringify(responseData));
+    // await setAsync("products", 600, JSON.stringify(responseData));
 
     res.status(200).json(responseData);
   } catch (error) {
