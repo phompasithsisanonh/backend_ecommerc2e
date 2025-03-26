@@ -60,8 +60,8 @@ const authController = async (req, res) => {
         if (token) {
           res.cookie("accessToken", token, {
             httpOnly: true,
-            securre: false, //ture HTTPS  //false test HTTP
-            sameSite: "Strict",
+            secure: ture, //ture HTTPS  //false test HTTP
+            sameSite: "None",
             maxAge: 24 * 60 * 60 * 1000,
           });
         }
@@ -154,7 +154,7 @@ const seller_reigster = async (req, res) => {
     res.cookie("accessToken", token, {
       httpOnly: true,
       secure: false, // HTTPS: true, HTTP: false
-      sameSite: "Strict",
+      sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000,
     });
     res
@@ -211,7 +211,7 @@ const seller_login = async (req, res) => {
     res.cookie("accessToken", token, {
       httpOnly: true,
       secure: false, // true for HTTPS
-      sameSite: "Strict",
+      sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000,
     });
 

@@ -1,11 +1,11 @@
 const JWT = require("jsonwebtoken");
 const authMiddlewares = (req, res, next) => {
   const { accessToken } = req.cookies;
- 
+
   if (!accessToken) {
     return res.status(401).json({
       success: false,
-      message: "please login to access this route",
+      message: `please login to access this route ${accessToken}`,
     });
   } else {
     try {
@@ -21,4 +21,4 @@ const authMiddlewares = (req, res, next) => {
     }
   }
 };
-module.exports.authMiddlewares  =authMiddlewares 
+module.exports.authMiddlewares = authMiddlewares;

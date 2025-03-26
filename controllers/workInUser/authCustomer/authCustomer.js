@@ -38,8 +38,8 @@ const registerCustomer = async (req, res) => {
       if (token) {
         res.cookie("customerToken", token, {
           httpOnly: true,
-          securre: false, //ture HTTPS  //false test HTTP
-          sameSite: "Strict",
+          secure: true, //ture HTTPS  //false test HTTP
+          sameSite: "None",
           maxAge: 24 * 60 * 60 * 1000,
         });
       }
@@ -99,8 +99,8 @@ const login_customer = async (req, res) => {
     if (token) {
       res.cookie("customerToken", token, {
         httpOnly: true,
-        securre: false, //ture HTTPS  //false test HTTP
-        sameSite: "Strict",
+        secure: true, //ture HTTPS  //false test HTTP
+        sameSite: "None",
         maxAge: 24 * 60 * 60 * 1000,
       });
     }
