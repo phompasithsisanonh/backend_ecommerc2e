@@ -7,14 +7,16 @@ const bodyParser = require("body-parser");
 const connectDB = require("./database/database.js");
 const routers = require("./routers/routers");
 const http = require("http");
+const mongoose = require("mongoose");
 const server = http.createServer(app);
-const mongoose = require("mongoose"); // เพิ่ม mongoose เพื่อจัดการการเชื่อมต่อ
-const PORT = process.env.PORT || 8080;
 const methodOverride = require("method-override");
+
+// ใช้ PORT จาก environment variable ของ Railway
+const PORT = process.env.PORT || 8080;
 
 app.use(
   cors({
-    origin: "*", // ใช้ * สำหรับทุกๆ Origin หรือเปลี่ยนเป็น URL ที่ต้องการอนุญาต
+    origin: "*",
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE"],
@@ -47,7 +49,7 @@ const startServer = async () => {
 // เรียกใช้งาน
 startServer();
 
-// จัดการสัญญาณหยุด (SIGTERM)
+// จัดการ SIGTERM
 process.on("SIGTERM", () => {
   console.log("ได้รับสัญญาณ SIGTERM กำลังปิดเซิร์ฟเวอร์...");
   server.close(() => {
@@ -59,7 +61,7 @@ process.on("SIGTERM", () => {
   });
 });
 
-// จัดการสัญญาณหยุดจากคอนโซล (SIGINT)
+// จัดการ SIGINT
 process.on("SIGINT", () => {
   console.log("ได้รับสัญญาณ SIGINT กำลังปิดเซิร์ฟเวอร์...");
   server.close(() => {
@@ -71,5 +73,4 @@ process.on("SIGINT", () => {
   });
 });
 
-// Export สำหรับ Vercel
 module.exports = server;
