@@ -11,6 +11,8 @@ const {
   get_seller_profile,
   uploadKycDocument,
   verify_admin,
+  send_otp,
+  updateLastLogin,
 } = require("../controllers/authController");
 const {
   categoryAdd,
@@ -105,6 +107,8 @@ const {
   couponEdit,
 } = require("../controllers/coupon");
 const { getWallet } = require("../controllers/getWalletAdmin");
+const { send_email, resetPassword, sendResetPasswordEmail } = require("../utils/nodemalierService");
+const { document } = require("../controllers/workInUser/download");
 
 // รับ redisClient จาก index.js
 module.exports = (redisClient) => {
@@ -233,5 +237,15 @@ module.exports = (redisClient) => {
     get_all_coupon(req, res, redisClient)
   );
   router.put("/couponEdit", couponEdit);
+
+  ///reset-passowrd
+  router.post("/send_email", send_email);
+  router.post("/reset-password/:token", sendResetPasswordEmail);
+  router.post("/reset-password", resetPassword);
+  router.post('/send_otp',send_otp) 
+  //lasst-login
+  router.get('/updateLastLogin', authMiddlewares,updateLastLogin)
+  //download.js
+  router.get('/download/:model', document)
   return router;
 };

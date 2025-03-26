@@ -1,21 +1,24 @@
 const formidable = require("formidable");
 const AdminModel = require("../models/adminModel");
-const sellerCustomerModel = require("../models/chat/sellerCustomerModel");
 const sellerModel = require("../models/sellerModel");
 const { response } = require("../utils/response");
 const bcrypt = require("bcryptjs");
 const JWT = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
+const nodemailer = require("nodemailer");
+const seller = require("../models/sellerModel");
+const crypto = require("crypto");
+require("dotenv").config();
 //registerAdmin
 const authregisteradminController = async (req, res) => {
   try {
     const { name, email, password, image } = req.body;
     const findAdmin = await AdminModel.findOne({ email });
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
     if (findAdmin) {
-      return res.status(400).json({ message: "Admin already exists" });
+      return res.status(404).json({ message: "Admin already exists" });
     } else {
-      const salt = await bcrypt.genSalt(10);
-      const hashPassword = await bcrypt.hash(password, salt);
       const newAdmin = new AdminModel({
         name,
         email,
@@ -71,56 +74,95 @@ const authController = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    response(res, 500, error.message);
+    return res.status(404).json({ message: error });
   }
 };
 //seller_reigster
-const seller_reigster = async (req, res) => {
-  const { email, name, password } = req.body;
+// ฟังก์ชันนี้ส่งอีเมลพร้อมลิงก์รีเซ็ต
+let otpStore = {}; // เก็บ OTP ชั่วคราว
+
+// **สร้างฟังก์ชัน Generate OTP**
+const generateOTP = () => crypto.randomBytes(4).toString("hex").toUpperCase(); // 8 ตัวอักษร
+// **ตั้งค่า Nodemailer**
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
+const send_otp = async (req, res) => {
+  const { email } = req.body;
+
+  const existingSeller = await seller.findOne({ email });
+  if (existingSeller) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Email is already registered" });
+  }
+
+  const otp = generateOTP();
+  otpStore[email] = { otp, expires: Date.now() + 5 * 60 * 1000 }; // OTP หมดอายุใน 5 นาที
+
   try {
-    const getUser = await sellerModel.findOne({ email });
-    if (getUser) {
-      res.status(404).json({
-        message: "this have email in system",
-      });
-    } else {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const rando = Math.floor();
-      console.log("Hashed Password:", hashedPassword);
-      const ran = Math.floor(100000 + Math.random() * 900000);
-      const seller = await sellerModel.create({
-        name,
-        email,
-        password: hashedPassword,
-        method: "menualy",
-        shopInfo: {},
-        seller_code: ran,
-      });
-      await sellerCustomerModel.create({
-        myId: seller?._id,
-      });
-      const token = JWT.sign(
-        { _id: seller._id, role: seller.role },
-        process.env.TOKEN_SECRET,
-        {
-          expiresIn: "1d",
-        }
-      );
-      if (token) {
-        res.cookie("accessToken", token, {
-          httpOnly: true,
-          securre: false, //ture HTTPS  //false test HTTP
-          sameSite: "Strict",
-          maxAge: 24 * 60 * 60 * 1000,
-        });
-      }
-      await seller.save();
-      res.status(200).json({
-        message: "register Seller successFully",
-      });
-    }
+    await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: "Verify your email",
+      text: `Your OTP Code is: ${otp}\nThis code will expire in 5 minutes.`,
+    });
+    res.json({
+      success: true,
+      message: "OTP sent to email. Verify to complete registration.",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error sending email" });
+  }
+};
+const seller_reigster = async (req, res) => {
+  const { email, name, password, otp } = req.body;
+  if (
+    !otpStore[email] ||
+    otpStore[email].otp !== otp ||
+    Date.now() > otpStore[email].expires
+  ) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid or expired OTP" });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const seller_code = Math.floor(100000 + Math.random() * 900000); // Seller Code 6 หลัก
+
+    const newSeller = new seller({
+      name,
+      email,
+      password: hashedPassword,
+      isVerified: true,
+      seller_code,
+    });
+
+    await newSeller.save();
+    delete otpStore[email]; // ลบ OTP หลังจากสมัครเสร็จ
+    const token = JWT.sign(
+      { _id: newSeller._id, role: "seller" },
+      process.env.TOKEN_SECRET,
+      { expiresIn: "1d" }
+    );
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: false, // HTTPS: true, HTTP: false
+      sameSite: "Strict",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+    res
+      .status(201)
+      .json({ success: true, message: "Seller registered successfully!" });
   } catch (err) {
     console.log(err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
@@ -136,10 +178,6 @@ const seller_login = async (req, res) => {
         message: "Please provide email and password",
       });
     }
-
-    console.log("Received email:", email);
-    console.log("Received password:", password);
-
     const findSeller = await sellerModel.findOne({ email }).select("+password");
     console.log(findSeller);
     if (!findSeller) {
@@ -148,9 +186,6 @@ const seller_login = async (req, res) => {
         message: "Email or password incorrect",
       });
     }
-
-    console.log("Stored hash password:", findSeller.password);
-
     if (!findSeller.password) {
       return res.status(500).json({
         success: false,
@@ -194,6 +229,7 @@ const seller_login = async (req, res) => {
 const getUser = async (req, res) => {
   try {
     const { id, role } = req;
+    console.log(id, role);
     try {
       if (role === "admin") {
         const user = await AdminModel.findById(id);
@@ -268,12 +304,17 @@ const profile_image_upload = async (req, res) => {
             }
           );
           image[index] = result.url;
+          const user = await sellerModel.findById(id);
+          if (user.image) {
+            const oldPublicId = user.image.split("/").pop().split(".")[0];
+            await cloudinary.uploader.destroy(`profile/${oldPublicId}`);
+          }
+
           if (result) {
             await sellerModel.findByIdAndUpdate(id, {
               image: result.url,
             });
-            // const oldPublicId = oldImage[0].split("/").pop().split(".")[0];
-            // await cloudinary.uploader.destroy(`profile/${oldPublicId}`);
+
             const userInfo = await sellerModel.findById(id);
             res
               .status(200)
@@ -417,18 +458,59 @@ const uploadKycDocument = async (req, res) => {
 const verify_admin = async (req, res) => {
   try {
     const { sellerId, statusverified, rejectionReason } = req.body;
-    console.log(sellerId, statusverified, rejectionReason)
-    const findSeller = await sellerModel.findByIdAndUpdate(sellerId, {
-      "kyc.status": statusverified,
-      "kyc.rejectionReason": rejectionReason,
-    });
-    // Missing response to client
+
+    // Find seller
+    const findSeller = await sellerModel.findById(sellerId);
+    if (!findSeller) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Seller not found" });
+    }
+
+    // Delete KYC images from Cloudinary
+    if (findSeller.kyc) {
+      const imagesToDelete = [
+        findSeller.kyc.idCard,
+        findSeller.kyc.businessLicense,
+        findSeller.kyc.addressProof,
+      ];
+      cloudinary.config({
+        cloud_name: process.env.CLOUND_NAME,
+        api_key: process.env.API_KEY,
+        api_secret: process.env.API_SECRET,
+        secure: true,
+      });
+      for (const imageUrl of imagesToDelete) {
+        if (imageUrl) {
+          const publicId = imageUrl.split("/").pop().split(".")[0]; // Extract public ID
+          await cloudinary.uploader.destroy(`seller-kyc/${publicId}`);
+        }
+      }
+    }
+
+    // Remove KYC images from database
+    findSeller.kyc.idCard = "";
+    findSeller.kyc.businessLicense = "";
+    findSeller.kyc.addressProof = "";
+    findSeller.kyc.status = statusverified;
+    findSeller.kyc.rejectionReason = rejectionReason;
+
+    await findSeller.save();
+
     res.status(200).json({ success: true, seller: findSeller });
   } catch (err) {
-    console.log(err);
-    // Missing error response to client
+    console.error(err);
     res.status(500).json({ success: false, message: "Server error" });
   }
+};
+
+//show login last login
+const updateLastLogin = async (req, res) => {
+  const { id } = req;
+  const data = await AdminModel.findByIdAndUpdate(id, {
+    lastLogin: new Date().toISOString(),
+  });
+  res.status(200).json({ success: true, data });
 };
 module.exports.authregisteradminController = authregisteradminController;
 module.exports.authController = authController;
@@ -440,3 +522,5 @@ module.exports.profile_image_upload = profile_image_upload;
 module.exports.get_seller_profile = get_seller_profile;
 module.exports.uploadKycDocument = uploadKycDocument;
 module.exports.verify_admin = verify_admin;
+module.exports.send_otp = send_otp;
+module.exports.updateLastLogin = updateLastLogin;

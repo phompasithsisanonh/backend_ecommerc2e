@@ -24,7 +24,7 @@ const formateProduct = (products) => {
   while (i < products.length) {
     let temp = [];
     let j = i;
-    while (j < i + 3) {
+    while (j < i + 4) {
       if (products[j]) {
         temp.push(products[j]);
       }

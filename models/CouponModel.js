@@ -20,5 +20,9 @@ const couponSchema = new Schema(
   },
   { timestamps: true }
 ); // timestamps = เพิ่ม createdAt & updatedAt
-
+couponSchema.virtual("customerOrders", {
+  ref: "customerOrders",
+  localField: "_id",
+  foreignField: "couponCode",
+});
 module.exports = model("CouponModel", couponSchema);

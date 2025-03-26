@@ -3,7 +3,8 @@ const { Schema, model } = require("mongoose");
 const customerOrder = new Schema(
   {
     customerId: {
-      type: Schema.ObjectId,
+      type: Schema.Types.ObjectId,
+      ref: "customers",
       required: true,
     },
     products: {
@@ -18,7 +19,7 @@ const customerOrder = new Schema(
       type: String,
       required: true,
     },
-    code_payment:{
+    code_payment: {
       type: Number,
       required: true,
     },
@@ -34,7 +35,7 @@ const customerOrder = new Schema(
       type: String,
       required: true,
     },
-    couponCode:{
+    couponCode: {
       type: String,
     },
     expiresAt: { type: Date, required: true }, // เวลา Order หมดอายุ
@@ -56,4 +57,5 @@ customerOrder.virtual("authorOrders", {
   localField: "_id",
   foreignField: "orderId",
 });
+
 module.exports = model("customerOrders", customerOrder);

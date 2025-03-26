@@ -36,7 +36,6 @@ const sellerSchema = new Schema(
     },
     method: {
       type: String,
-      required: true,
     },
     phone:{
       type: String,

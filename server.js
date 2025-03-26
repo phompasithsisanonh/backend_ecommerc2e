@@ -11,24 +11,16 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 const redis = require("redis");
 const methodOverride = require('method-override')
-// const session = require("express-session");
-// Middleware
+
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: ["http://localhost:3000", "https://easyshoplaos.netlify.app"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
-// app.use(
-//   session({
-//     secret: "ecommerce-secret", // ใช้สำหรับเข้ารหัส session
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: { maxAge: 60000 * 10 }, // อายุ session 10 นาที
-//   })
-// );
+
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }))
