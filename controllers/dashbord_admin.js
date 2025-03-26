@@ -1,23 +1,23 @@
 const authOrder = require("../models/authOrder");
 const products = require("../models/productModel");
-
-const dashbord_admin = async (req, res, redisClient) => {
+// redisClient
+const dashbord_admin = async (req, res) => {
   try {
-     const cacheKey = "admin_dashboard"; // ชื่อ key ที่สื่อความหมาย
+    //  const cacheKey = "admin_dashboard"; // ชื่อ key ที่สื่อความหมาย
 
-    // // 1. ตรวจสอบใน Redis
-    const cachedData = await redisClient.get(cacheKey);
-    if (cachedData) {
-      console.log("Cache hit: Fetching dashboard from Redis");
-      return res.status(200).json({
-        success: true,
-        data: JSON.parse(cachedData),
-        source: "cache",
-      });
-    }
+    // // // 1. ตรวจสอบใน Redis
+    // const cachedData = await redisClient.get(cacheKey);
+    // if (cachedData) {
+    //   console.log("Cache hit: Fetching dashboard from Redis");
+    //   return res.status(200).json({
+    //     success: true,
+    //     data: JSON.parse(cachedData),
+    //     source: "cache",
+    //   });
+    // }
 
-    // // 2. ถ้าไม่มีใน cache ดึงจาก MongoDB
-    console.log("Cache miss: Fetching from MongoDB");
+    // // // 2. ถ้าไม่มีใน cache ดึงจาก MongoDB
+    // console.log("Cache miss: Fetching from MongoDB");
 
     // ดึงออเดอร์ที่จ่ายแล้ว
     const paidOrders = await authOrder.find({ payment_status: "ຈ່າຍແລ້ວ" });
@@ -56,8 +56,8 @@ const dashbord_admin = async (req, res, redisClient) => {
       all_products: all_products,
     };
 
-    // 3. เก็บใน Redis (TTL = 5 นาที หรือ 300 วินาที)
-     await redisClient.set(cacheKey, JSON.stringify(dashboardData), { EX:  300 });
+    // // 3. เก็บใน Redis (TTL = 5 นาที หรือ 300 วินาที)
+    //  await redisClient.set(cacheKey, JSON.stringify(dashboardData), { EX:  300 });
 
     res.status(200).json({
       success: true,
@@ -74,4 +74,4 @@ const dashbord_admin = async (req, res, redisClient) => {
   }
 };
 
-module.exports.dashbord_admin  =  dashbord_admin ;
+module.exports.dashbord_admin = dashbord_admin;

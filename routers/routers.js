@@ -107,7 +107,11 @@ const {
   couponEdit,
 } = require("../controllers/coupon");
 const { getWallet } = require("../controllers/getWalletAdmin");
-const { send_email, resetPassword, sendResetPasswordEmail } = require("../utils/nodemalierService");
+const {
+  send_email,
+  resetPassword,
+  sendResetPasswordEmail,
+} = require("../utils/nodemalierService");
 const { document } = require("../controllers/workInUser/download");
 
 // รับ redisClient จาก index.js
@@ -119,14 +123,14 @@ module.exports = (redisClient) => {
   //admin
   router.post("/admin-register", authregisteradminController);
   router.post("/admin-login", authController);
-  router.post('/statusverified', authMiddlewares,verify_admin)
+  router.post("/statusverified", authMiddlewares, verify_admin);
   ///seller
   router.post("/seller_reigster", seller_reigster);
   router.post("/seller-login", seller_login);
-  router.get("/get_profile",authMiddlewares,get_seller_profile );
- router.post('/uploadKycDocument',authMiddlewares,uploadKycDocument)
+  router.get("/get_profile", authMiddlewares, get_seller_profile);
+  router.post("/uploadKycDocument", authMiddlewares, uploadKycDocument);
   //admin
-  router.get('/get-wallet',authMiddlewares,getWallet)
+  router.get("/get-wallet", authMiddlewares, getWallet);
   //categoryAdd
   router.post("/category-add", authMiddlewares, categoryAdd);
   ///add products seller
@@ -142,9 +146,7 @@ module.exports = (redisClient) => {
   router.get("/get_transation", authMiddlewares, get_transation);
   router.post("/approved_admin/:id_tran", authMiddlewares, approved_admin);
   ///get_seller_toadmin
-  router.get("/get_seller_admin", authMiddlewares, (req, res) =>
-    get_seller_admin(req, res, redisClient)
-  );
+  router.get("/get_seller_admin", authMiddlewares, get_seller_admin);
 
   ///get
   router.get(
@@ -162,9 +164,10 @@ module.exports = (redisClient) => {
   router.post("/status_buy/:productId", authMiddlewares, update_status_buy);
   router.get("/get_order_to_admin", authMiddlewares, get_order_to_admin);
 
-  router.get("/dashbord_admin", authMiddlewares, (req, res) =>
-    dashbord_admin(req, res, redisClient)
-  );
+  // router.get("/dashbord_admin", authMiddlewares, (req, res) =>
+  //   dashbord_admin(req, res, redisClient)
+  // );
+  router.get("/dashbord_admin", authMiddlewares, dashbord_admin);
   router.post("/updatecategoryAdd", authMiddlewares, updatecategoryAdd);
   router.post("/coupon-add", authMiddlewares, couponAdd);
 
@@ -233,19 +236,20 @@ module.exports = (redisClient) => {
 
   ////coupon user
   router.post("/apply-coupon", applyCoupon);
-  router.get("/get-coupon", (req, res) =>
-    get_all_coupon(req, res, redisClient)
-  );
+  // router.get("/get-coupon", (req, res) =>
+  //   get_all_coupon(req, res, redisClient)
+  // );
+  router.get("/get-coupon", get_all_coupon);
   router.put("/couponEdit", couponEdit);
 
   ///reset-passowrd
   router.post("/send_email", send_email);
   router.post("/reset-password/:token", sendResetPasswordEmail);
   router.post("/reset-password", resetPassword);
-  router.post('/send_otp',send_otp) 
+  router.post("/send_otp", send_otp);
   //lasst-login
-  router.get('/updateLastLogin', authMiddlewares,updateLastLogin)
+  router.get("/updateLastLogin", authMiddlewares, updateLastLogin);
   //download.js
-  router.get('/download/:model', document)
+  router.get("/download/:model", document);
   return router;
 };
