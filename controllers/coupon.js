@@ -103,7 +103,6 @@ const get_all_coupon = async (req, res) => {
 
     // 3. ใช้ Promise.all เพื่อทำให้ทั้งสองทำงานพร้อมกัน
     const [findCoupon] = await Promise.all([
-      cachedDataPromise,
       findCouponPromise,
     ]);
 
