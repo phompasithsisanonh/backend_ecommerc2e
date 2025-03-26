@@ -60,7 +60,7 @@ const authController = async (req, res) => {
         if (token) {
           res.cookie("accessToken", token, {
             httpOnly: true,
-            secure: ture, //ture HTTPS  //false test HTTP
+            secure: true, //true HTTPS  //false test HTTP
             sameSite: "None",
             maxAge: 24 * 60 * 60 * 1000,
           });
@@ -153,7 +153,7 @@ const seller_reigster = async (req, res) => {
     );
     res.cookie("accessToken", token, {
       httpOnly: true,
-      secure: false, // HTTPS: true, HTTP: false
+      secure: true, // HTTPS: true, HTTP: false
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000,
     });
@@ -210,7 +210,7 @@ const seller_login = async (req, res) => {
 
     res.cookie("accessToken", token, {
       httpOnly: true,
-      secure: false, // true for HTTPS
+      secure: true, // true for HTTPS
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000,
     });
@@ -360,7 +360,7 @@ const uploadToCloudinary = async (file) => {
       secure: true,
     });
 
-    // The issue might be with how formidable structures the file object
+    // The issue might be with how formidable structrues the file object
     // Different versions of formidable might use different property names
     const filePath = file.filepath || file.path; // Try both possible property names
 
