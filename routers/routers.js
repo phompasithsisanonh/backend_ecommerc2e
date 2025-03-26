@@ -114,11 +114,7 @@ const {
 } = require("../utils/nodemalierService");
 const { document } = require("../controllers/workInUser/download");
 
-// รับ redisClient จาก index.js
-module.exports = (redisClient) => {
-  // ส่ง redisClient ไปยัง controller ที่ต้องการ
-
-  // Routes อื่น ๆ ยังคงเหมือนเดิม
+module.exports = () => {
 
   //admin
   router.post("/admin-register", authregisteradminController);
@@ -164,9 +160,7 @@ module.exports = (redisClient) => {
   router.post("/status_buy/:productId", authMiddlewares, update_status_buy);
   router.get("/get_order_to_admin", authMiddlewares, get_order_to_admin);
 
-  // router.get("/dashbord_admin", authMiddlewares, (req, res) =>
-  //   dashbord_admin(req, res, redisClient)
-  // );
+
   router.get("/dashbord_admin", authMiddlewares, dashbord_admin);
   router.post("/updatecategoryAdd", authMiddlewares, updatecategoryAdd);
   router.post("/coupon-add", authMiddlewares, couponAdd);
@@ -236,9 +230,6 @@ module.exports = (redisClient) => {
 
   ////coupon user
   router.post("/apply-coupon", applyCoupon);
-  // router.get("/get-coupon", (req, res) =>
-  //   get_all_coupon(req, res, redisClient)
-  // );
   router.get("/get-coupon", get_all_coupon);
   router.put("/couponEdit", couponEdit);
 

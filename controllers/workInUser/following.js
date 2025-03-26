@@ -1,5 +1,4 @@
 const FollowingModel = require("../../models/following_peopleModel"); // เส้นทางที่คุณใช้
-const SellerModel = require("../../models/sellerModel"); // เส้นทางของ sellerModel
 
 // ฟังก์ชันการติดตามผู้ขาย
 const followSeller = async (req, res) => {

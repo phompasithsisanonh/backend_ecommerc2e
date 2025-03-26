@@ -2,11 +2,6 @@ const categoryModel = require("../../models/categoryModel");
 const productModel = require("../../models/productModel");
 const reviewModel = require("../../models/reviewModel");
 const moment = require("moment");
-// const redis = require("ioredis");
-// const client = redis.createClient();
-const { promisify } = require("util");
-// const getAsync = promisify(client.get).bind(client);
-// const setAsync = promisify(client.setex).bind(client);
 const get_categorys = async (req, res) => {
   try {
     const categorys = await categoryModel.find({});
@@ -37,27 +32,34 @@ const formateProduct = (products) => {
 };
 const get_products = async (req, res) => {
   try {
-    // Check if products are cached
-    // const cachedProducts = await getAsync("products");
-    // if (cachedProducts) {
-    //   return res.status(200).json(JSON.parse(cachedProducts));
-    // }
-
-    // Fetch data from MongoDB
-    const products = await productModel.find({}).limit(12).sort({ createdAt: -1 });
-    const allProduct1 = await productModel.find({}).limit(9).sort({ createdAt: -1 });
-    const allProduct2 = await productModel.find({}).limit(9).sort({ rating: -1 });
-    const allProduct3 = await productModel.find({}).limit(9).sort({ discount: -1 });
+    const products = await productModel
+      .find({})
+      .limit(12)
+      .sort({ createdAt: -1 });
+    const allProduct1 = await productModel
+      .find({})
+      .limit(9)
+      .sort({ createdAt: -1 });
+    const allProduct2 = await productModel
+      .find({})
+      .limit(9)
+      .sort({ rating: -1 });
+    const allProduct3 = await productModel
+      .find({})
+      .limit(9)
+      .sort({ discount: -1 });
 
     const topRated_product = formateProduct(allProduct2);
     const latest_product = formateProduct(allProduct1);
     const discount_product = formateProduct(allProduct3);
 
     // Create response object
-    const responseData = { products, latest_product, topRated_product, discount_product };
-
-    // Cache the result in Redis for 10 minutes (600 seconds)
-    // await setAsync("products", 600, JSON.stringify(responseData));
+    const responseData = {
+      products,
+      latest_product,
+      topRated_product,
+      discount_product,
+    };
 
     res.status(200).json(responseData);
   } catch (error) {
@@ -174,9 +176,9 @@ const query_product = async (req, res) => {
 const product_detail = async (req, res) => {
   const { slug } = req.params;
   try {
-    const product = await productModel.findOne({ _id: slug }).populate(
-      "sellerId"
-    );;
+    const product = await productModel
+      .findOne({ _id: slug })
+      .populate("sellerId");
     const relatedProducts = await productModel
       .find({
         $and: [
@@ -271,16 +273,17 @@ const get_profile_seller = async (req, res) => {
     const find_sellerId = await productModel.find({ sellerId: sellerId });
 
     // Extract product IDs from the found products
-    const productIds = find_sellerId.map(product => product._id);
+    const productIds = find_sellerId.map((product) => product._id);
 
     // Find all reviews that match the product IDs
-    const find_products_from_review = await reviewModel.find({ productId: { $in: productIds } });
+    const find_products_from_review = await reviewModel.find({
+      productId: { $in: productIds },
+    });
 
     res.status(200).json({
       products_seller: find_sellerId,
       reviews: find_products_from_review, // Fixed typo from 'reviwes' -> 'reviews'
     });
-
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: "Internal Server Error" }); // Send an error response

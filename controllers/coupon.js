@@ -96,20 +96,9 @@ const applyCoupon = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
-// redisClient
+
 const get_all_coupon = async (req, res) => {
   try {
-    // const cacheKey = "get_all_coupon"; // Redis cache key
-
-    // // เช็คว่า Redis พร้อมใช้งานหรือไม่
-    // if (!redisClient) {
-    //   console.error("Redis client is not connected");
-    // }
-
-    // // 1. ตรวจสอบ Redis Cache แบบ async
-    // const cachedDataPromise = redisClient?.get(cacheKey);
-
-    // 2. ตรวจสอบข้อมูลจาก Database แบบ async
     const findCouponPromise = Coupon.find({}).lean();
 
     // 3. ใช้ Promise.all เพื่อทำให้ทั้งสองทำงานพร้อมกัน
@@ -117,23 +106,6 @@ const get_all_coupon = async (req, res) => {
       cachedDataPromise,
       findCouponPromise,
     ]);
-
-    // if (cachedData) {
-    //   return res.status(200).json({
-    //     success: true,
-    //     data: JSON.parse(cachedData),
-    //     source: "cache",
-    //   });
-    // }
-    // res.status(200).json({
-    //   success: true,
-    //   data: JSON.parse(cachedData),
-    //   source: "cache",
-    // });
-    // 4. Store in Redis with expiration (set EX: 60 for 1 minute cache)
-    // if (redisClient) {
-    //   redisClient.set(cacheKey, JSON.stringify(findCoupon), { EX: 60 });
-    // }
 
     // 5. ส่งข้อมูลจาก Database
     res.status(200).json({

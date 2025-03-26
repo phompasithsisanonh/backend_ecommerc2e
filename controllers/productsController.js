@@ -1,8 +1,6 @@
 const ProductsModel = require("../models/productModel");
 const cloudinary = require("cloudinary").v2;
 const formidable = require("formidable");
-// const Redis = require("ioredis");
-// const redis = new Redis();
 const productAdd = async (req, res) => {
   try {
     const { id } = req;
