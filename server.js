@@ -8,8 +8,9 @@ const connectDB = require("./database/database.js");
 const routers = require("./routers/routers");
 const http = require("http");
 const server = http.createServer(app);
+const mongoose = require("mongoose"); // เพิ่ม mongoose เพื่อจัดการการเชื่อมต่อ
 const PORT = process.env.PORT || 8080;
-const methodOverride = require('method-override')
+const methodOverride = require("method-override");
 
 app.use(
   cors({
@@ -22,8 +23,8 @@ app.use(
 
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: false }))
-app.use(methodOverride('_method'))
+app.use(express.urlencoded({ extended: false }));
+app.use(methodOverride("_method"));
 
 app.use("/api", routers);
 
@@ -45,6 +46,30 @@ const startServer = async () => {
 
 // เรียกใช้งาน
 startServer();
+
+// จัดการสัญญาณหยุด (SIGTERM)
+process.on("SIGTERM", () => {
+  console.log("ได้รับสัญญาณ SIGTERM กำลังปิดเซิร์ฟเวอร์...");
+  server.close(() => {
+    console.log("เซิร์ฟเวอร์ปิดแล้ว");
+    mongoose.connection.close(false, () => {
+      console.log("การเชื่อมต่อ MongoDB ปิดแล้ว");
+      process.exit(0);
+    });
+  });
+});
+
+// จัดการสัญญาณหยุดจากคอนโซล (SIGINT)
+process.on("SIGINT", () => {
+  console.log("ได้รับสัญญาณ SIGINT กำลังปิดเซิร์ฟเวอร์...");
+  server.close(() => {
+    console.log("เซิร์ฟเวอร์ปิดแล้ว");
+    mongoose.connection.close(false, () => {
+      console.log("การเชื่อมต่อ MongoDB ปิดแล้ว");
+      process.exit(0);
+    });
+  });
+});
 
 // Export สำหรับ Vercel
 module.exports = server;
