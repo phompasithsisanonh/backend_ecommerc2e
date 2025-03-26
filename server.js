@@ -10,6 +10,7 @@ const http = require("http");
 const mongoose = require("mongoose");
 const server = http.createServer(app);
 const methodOverride = require("method-override");
+const { get_products } = require("./controllers/workInUser/homeController.js");
 
 // ใช้ PORT จาก environment variable ของ Railway
 const PORT = process.env.PORT || 8080;
@@ -32,6 +33,7 @@ app.use("/api", routers);
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK", message: "Server is running" });
 });
+app.get("/get-products", get_products);
 const startServer = async () => {
   try {
     // เชื่อมต่อ MongoDB

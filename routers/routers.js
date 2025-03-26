@@ -198,7 +198,7 @@ module.exports = () => {
   //WorkInUser
   //homeRouter
   router.get("/get-categorys", get_categorys);
-  router.get("/get-products", get_products);
+  // router.get("/get-products", get_products);
   router.get("/price-range-latest-product", price_range);
   router.get("/query-products", query_product);
   router.get("/product-details/:slug", product_detail);
