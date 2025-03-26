@@ -5,7 +5,7 @@ const authMiddlewares = (req, res, next) => {
   if (!accessToken) {
     return res.status(401).json({
       success: false,
-      message: `please login to access this route ${accessToken} console.log(${process.env.TOKEN_SECRET})`,
+      message: `please login to access this route ${ req.cookies} console.log(${process.env.TOKEN_SECRET})`,
     });
   } else {
     try {

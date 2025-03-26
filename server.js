@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 8080;
 
 app.use(
   cors({
-    origin:"https://easyshoplaos.netlify.app",
+    origin:"*",
     credentials: true,
   })
 );
